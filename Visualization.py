@@ -76,7 +76,7 @@ app.layout = html.Div([
     Input("junior", "clickData"),
     Input("roles", "clickData"),
 )
-def filter_jobs(junior_click):
+def filter_jobs(test, junior_click, test2):
 
     filtered = df.copy()
 
@@ -136,4 +136,5 @@ def filter_jobs(junior_click):
     ]
 
 if __name__ == "__main__":
+
     app.run()
