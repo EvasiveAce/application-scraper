@@ -31,24 +31,48 @@ colors = {
 
 def create_breakdown_figure(filtered_df):
     """Create the breakdown figure based on filtered data"""
-    junior_remote = filtered_df[(filtered_df["junior_explicit"] == True) & (filtered_df["is_remote"] == True)]
-    junior_onsite = filtered_df[(filtered_df["junior_explicit"] == True) & (filtered_df["is_remote"] == False)]
-    non_junior_remote = filtered_df[(filtered_df["junior_explicit"] == False) & (filtered_df["is_remote"] == True)]
-    non_junior_onsite = filtered_df[(filtered_df["junior_explicit"] == False) & (filtered_df["is_remote"] == False)]
+    junior_remote = filtered_df[(filtered_df["level"] == "Junior") & (filtered_df["is_remote"] == True)]
+    junior_onsite = filtered_df[(filtered_df["level"] == "Junior") & (filtered_df["is_remote"] == False)]
+    mid_remote = filtered_df[((filtered_df["level"] != "Junior") & (filtered_df["level"] != "Senior")) & (filtered_df["is_remote"] == True)]
+    mid_onsite = filtered_df[((filtered_df["level"] != "Junior") & (filtered_df["level"] != "Senior")) & (filtered_df["is_remote"] == False)]
+    senior_remote = filtered_df[(filtered_df["level"] == "Senior") & (filtered_df["is_remote"] == True)]
+    senior_onsite = filtered_df[(filtered_df["level"] != "Senior") & (filtered_df["is_remote"] == False)]
 
     breakdown_data = {
-        'Category': ["All Jobs", "Not Junior Listed - Onsite", "Not Junior Listed - Remote", 
-                     "Junior - All", "Junior - Onsite", "Junior - Remote"],
+        'Category': [
+            "All Jobs", 
+            "Senior - All", "Senior - Onsite", "Senior - Remote", 
+            "Mid-Level - All", "Mid-Level - Onsite", "Mid-Level - Remote",
+            "Junior - All", "Junior - Onsite", "Junior - Remote"
+        ],
+        
         'Count': [
             len(filtered_df),
-            len(non_junior_onsite),
-            len(non_junior_remote),
-            len(junior_remote) + len(junior_onsite),
+            len(senior_onsite) + len(senior_remote),
+            len(senior_onsite),
+            len(senior_remote),
+            
+            len(mid_onsite) + len(mid_remote),
+            len(mid_onsite),
+            len(mid_remote),
+            
+            len(junior_onsite) + len(junior_remote),
             len(junior_onsite),
             len(junior_remote)
         ],
-        'Color': [colors['primary'], colors['secondary'], colors['accent'], 
-                  '#f59e0b', '#ef4444', '#ec4899']
+
+        'Color': [
+            '#E6C229', 
+            '#F17105', 
+            '#D11149', 
+            '#6610F2', 
+            '#1a8fe3', 
+            '#CBEF43',
+            '#8DE969',
+            '#00A6A6',
+            '#EFCA08',
+            '#F49F0A'
+        ]
     }
 
     fig = go.Figure(data=[
@@ -245,26 +269,48 @@ def filter_jobs(date_filter, junior_click):
     if junior_click:
         label = junior_click["points"][0]["y"]
 
-        if label == "Not Junior Listed - Remote":
+        if label == "Senior - All":
+            results_filtered = results_filtered[results_filtered["level"] == "Senior"]
+
+        elif label == "Senior - Remote":
             results_filtered = results_filtered[
-                (results_filtered["junior_explicit"] == False) &
+                (results_filtered["level"] == "Senior") &
                 (results_filtered["is_remote"] == True)
             ]
-        elif label == "Not Junior Listed - Onsite":
+
+        elif label == "Senior - Onsite":
             results_filtered = results_filtered[
-                (results_filtered["junior_explicit"] == False) &
+                (results_filtered["level"] == "Senior") &
                 (results_filtered["is_remote"] == False)
             ]
-        elif label == "Junior - All":
-            results_filtered = results_filtered[results_filtered["junior_explicit"] == True]
-        elif label == "Junior - Remote":
+            
+        elif label == "Mid-Level - All":
+            results_filtered = results_filtered[((results_filtered["level"] != "Senior") & (results_filtered["level"] != "Junior"))]
+
+        elif label == "Mid-Level - Remote":
             results_filtered = results_filtered[
-                (results_filtered["junior_explicit"] == True) &
+                ((results_filtered["level"] != "Senior") & (results_filtered["level"] != "Junior")) &
                 (results_filtered["is_remote"] == True)
             ]
+
+        elif label == "Mid-Level - Onsite":
+            results_filtered = results_filtered[
+                ((results_filtered["level"] != "Senior") & (results_filtered["level"] != "Junior")) &
+                (results_filtered["is_remote"] == False)
+            ]
+        
+        elif label == "Junior - All":
+            results_filtered = results_filtered[results_filtered["level"] == "Junior"]
+
+        elif label == "Junior - Remote":
+            results_filtered = results_filtered[
+                (results_filtered["level"] == "Junior") &
+                (results_filtered["is_remote"] == True)
+            ]
+            
         elif label == "Junior - Onsite":
             results_filtered = results_filtered[
-                (results_filtered["junior_explicit"] == True) &
+                (results_filtered["level"] == "Junior") &
                 (results_filtered["is_remote"] == False)
             ]
 
